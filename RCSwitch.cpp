@@ -113,45 +113,45 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, bool bStatus) {
 /**
  * Switch a remote switch on (Type B with two rotary/sliding switches)
  *
- * @param nAddressCode  Number of the switch group (1..4)
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nGroupNumber  Number of the switch group (1..4)
+ * @param nSwitchNumber  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOn(int nAddressCode, int nChannelCode) {
-  printf("switchOn nAddressCode: %d, ChannelCode: %d\n", nAddressCode, nChannelCode);
-  this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, true) );
+void RCSwitch::switchOn(int nGroupNumber, int nSwitchNumber) {
+  printf("switchOn nGroupNumber: %d, SwitchNumber: %d\n", nGroupNumber, nSwitchNumber);
+  this->sendTriState( this->getCodeWordB(nGroupNumber, nSwitchNumber, true) );
 }
 
 /**
  * Switch a remote switch off (Type B with two rotary/sliding switches)
  *
- * @param nAddressCode  Number of the switch group (1..4)
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nGroupNumber  Number of the switch group (1..4)
+ * @param nSwitchNumber  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOff(int nAddressCode, int nChannelCode) {
-  printf("switchOff nAddressCode: %d, ChannelCode: %d\n", nAddressCode, nChannelCode);
-  this->sendTriState( this->getCodeWordB(nAddressCode, nChannelCode, false) );
+void RCSwitch::switchOff(int nGroupNumber, int nSwitchNumber) {
+  printf("switchOff nGroupNumber: %d, SwitchNumber: %d\n", nGroupNumber, nSwitchNumber);
+  this->sendTriState( this->getCodeWordB(nGroupNumber, nSwitchNumber, false) );
 }
 
 /**
  * Switch a remote switch on (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nSwitchNumber  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOn(char* sGroup, int nChannel) {
-  printf("switchOn  sGroup: %s channel: %d\n", sGroup, nChannel);
-  this->sendTriState( this->getCodeWordA(sGroup, nChannel, true) );
+void RCSwitch::switchOn(char* sGroup, int nSwitchNumber) {
+  printf("switchOn  sGroup: %s channel: %d\n", sGroup, nSwitchNumber);
+  this->sendTriState( this->getCodeWordA(sGroup, nSwitchNumber, true) );
 }
 
 /**
  * Switch a remote switch off (Type A with 10 pole DIP switches)
  *
  * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
- * @param nChannelCode  Number of the switch itself (1..4)
+ * @param nSwitchNumber  Number of the switch itself (1..4)
  */
-void RCSwitch::switchOff(char* sGroup, int nChannel) {
-  printf("switchOff  sGroup: %s channel: %d\n", sGroup, nChannel);
-  this->sendTriState( this->getCodeWordA(sGroup, nChannel, false) );
+void RCSwitch::switchOff(char* sGroup, int nSwitchNumber) {
+  printf("switchOff  sGroup: %s channel: %d\n", sGroup, nSwitchNumber);
+  this->sendTriState( this->getCodeWordA(sGroup, nSwitchNumber, false) );
 }
 
 /**
