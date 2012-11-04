@@ -1,4 +1,4 @@
-DESCRIPTION = "makefile"
+DESCRIPTION = "RCSwitch on Raspberry Pi"
 LICENSE = "GPL"
 VERSION = 1.0
 
@@ -7,9 +7,13 @@ CFLAGS += -Iinclude
 CFLAGS += -Llib
 CFLAGS += -lwiringPi
 
+default: daemon
 
-default:
+daemon: daemon.cpp
+	$(CC) -Wall daemon.cpp RCSwitch.cpp -o daemon $(CFLAGS)
+
+test: test.cpp
 	$(CC) -Wall test.cpp RCSwitch.cpp -o test $(CFLAGS)
 
 clean:
-	rm -f test
+	rm -f test daemon
