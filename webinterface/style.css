@@ -4,27 +4,8 @@ body {
   font-size: 26px;
 }
 
-h1 {
-}
-
-h2 {
-}
-
 h3 {
   font-size: 30px;
-}
-
-p {
-}
-
-div {
-  width: 495px;
-  padding: 10px;
-}
-
-div.changelog {
-  color: #ffffff;
-  background-color: #14171b;
 }
 
 table {
@@ -58,38 +39,18 @@ a:hover {
   color: #298aad;
   text-decoration: none;
 }
+a.on:hover {
+  color: #00ff00;
+  text-decoration: none;
+}
+a.off:hover {
+  color: #ff0000;
+  text-decoration: none;
+}
 a:active {
   color: #ffffff; i
   text-decoration: none;
 }
-
-span {
-  color: #ffffff;
-}
-
-
-.ics {
-  color: #298aad;
-}
-
-ul {
-  list-style-type: circle;
-  color: #298aad;
-}
-
-li {
-  color: #ffffff;
-}
-
-/* Display */
-.hidden { display: none; }
-.visible { display: block; }
-
-/* Visibility */
-/*
-.hidden { visibility: hidden; }
-.visible { visibility: visible; }
-*/
 
 /* Android HDPI */
 @media only screen and (-webkit-device-pixel-ratio:1.5) {
