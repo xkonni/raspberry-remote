@@ -87,7 +87,8 @@ int main(int argc, char* argv[]) {
       error("ERROR reading from socket");
 
 
-    if (strlen(buffer) > 8) {
+    printf("message: %s\n", buffer);
+    if (strlen(buffer) >= 8) {
       for (int i=0; i<5; i++) {
         nGroup[i] = buffer[i];
       }
@@ -97,48 +98,51 @@ int main(int argc, char* argv[]) {
         nSwitchNumber = buffer[i]-48;
       }
       nAction = buffer[7]-48;
+
+      /**
+       * handle messages
+       */
+      int nAddr = getAddr(nGroup, nSwitchNumber);
+      char msg[13];
+      if (nAddr > nPlugs)
+        printf("Switch invalid: %s::%d\n", nGroup, nSwitchNumber);
+      else {
+        switch (nAction) {
+          /**
+           * off
+           */
+          case 0:
+            mySwitch.switchOff(nGroup, nSwitchNumber);
+            nState[nAddr] = 0;
+            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            sprintf(msg, "%d", nState[nAddr]);
+            n = write(newsockfd,msg,1);
+            break;
+          /**
+           * on
+           */
+          case 1:
+            mySwitch.switchOn(nGroup, nSwitchNumber);
+            nState[nAddr] = 1;
+            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            sprintf(msg, "%d", nState[nAddr]);
+            n = write(newsockfd,msg,1);
+            break;
+          /**
+           * status
+           */
+          case 2:
+            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            sprintf(msg, "%d", nState[nAddr]);
+            n = write(newsockfd,msg,1);
+            break;
+        }
+      }
     }
     else {
       printf("message corrupted or incomplete");
     }
 
-    /**
-     * handle messages
-     */
-    int nAddr = getAddr(nGroup, nSwitchNumber);
-    char msg[13];
-    if (nAddr > nPlugs)
-      printf("Switch invalid: %s::%d\n", nGroup, nSwitchNumber);
-    else {
-      switch (nAction) {
-        /**
-         * off
-         */
-        case 0:
-          mySwitch.switchOff(nGroup, nSwitchNumber);
-          nState[nAddr] = 0;
-          sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-          n = write(newsockfd,msg,14);
-          break;
-        /**
-         * on
-         */
-        case 1:
-          mySwitch.switchOn(nGroup, nSwitchNumber);
-          nState[nAddr] = 1;
-          sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-          n = write(newsockfd,msg,14);
-          break;
-        /**
-         * status
-         */
-        case 2:
-          printf("nState[%d] %d\n", nAddr, nState[nAddr]);
-          sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-          n = write(newsockfd,msg,14);
-          break;
-      }
-    }
 
     if (n < 0)
       error("ERROR writing to socket");
