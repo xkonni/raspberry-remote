@@ -41,9 +41,11 @@ int main(int argc, char* argv[]) {
   /**
    * setup RCSwitch
    */
+  if (wiringPiSetup () == -1) 
+    return 1;
   RCSwitch mySwitch = RCSwitch();
   usleep(50000);
-  mySwitch.enableTransmit(4);
+  mySwitch.enableTransmit(0);
   usleep(50000);
 
 
