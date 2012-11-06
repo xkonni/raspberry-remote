@@ -2,16 +2,16 @@ DESCRIPTION = "RCSwitch on Raspberry Pi"
 LICENSE = "GPL"
 VERSION = 1.0
 
-CC      = g++
-CFLAGS += -lwiringPi
+CXXFLAGS += -Wall
+CXXFLAGS += -lwiringPi
 
 default: daemon
 
-daemon: daemon.cpp
-	$(CC) -Wall daemon.cpp RCSwitch.cpp -o daemon $(CFLAGS)
+daemon: RCSwitch.o daemon.o
+	$(CXX) $+ -o $@ $(CXXFLAGS) $(LDFLAGS)
 
-test: test.cpp
-	$(CC) -Wall test.cpp RCSwitch.cpp -o test $(CFLAGS)
+send: RCSwitch.o send.o
+	$(CXX) $+ -o $@ $(CXXFLAGS) $(LDFLAGS)
 
 clean:
-	rm -f test daemon
+	rm -f *.o send daemon
