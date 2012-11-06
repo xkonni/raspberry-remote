@@ -191,7 +191,7 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
    int nReturnPos = 0;
    static char sReturn[13];
 
-   char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
+   const char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
    if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
     return '\0';
    }
@@ -226,7 +226,7 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
    int nReturnPos = 0;
    static char sReturn[13];
 
-  char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
+  const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
   if (nChannelCode < 1 || nChannelCode > 5) {
       return '\0';
@@ -486,7 +486,7 @@ unsigned int* RCSwitch::getReceivedRawdata() {
 /**
  *
  */
-bool RCSwitch::receiveProtocol1(unsigned int changeCount){
+bool RCSwitch::receiveProtocol1(int changeCount){
 
     unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / 31;
@@ -513,16 +513,15 @@ bool RCSwitch::receiveProtocol1(unsigned int changeCount){
     RCSwitch::nReceivedProtocol = 1;
     }
 
-  if (code == 0){
-    return false;
-  }else if (code != 0){
+  if (code != 0) {
     return true;
   }
-
-
+  else {
+    return false;
+  }
 }
 
-bool RCSwitch::receiveProtocol2(unsigned int changeCount){
+bool RCSwitch::receiveProtocol2(int changeCount){
 
     unsigned long code = 0;
       unsigned long delay = RCSwitch::timings[0] / 10;
@@ -549,12 +548,12 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
     RCSwitch::nReceivedProtocol = 2;
     }
 
-  if (code == 0){
-    return false;
-  }else if (code != 0){
+  if (code != 0) {
     return true;
   }
-
+  else {
+    return false;
+  }
 }
 
 /**
@@ -580,4 +579,3 @@ char* RCSwitch::dec2binWzerofill(unsigned long Dec, unsigned int bitLength){
 
   return bin;
 }
-

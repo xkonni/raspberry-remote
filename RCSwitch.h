@@ -30,7 +30,6 @@
 #else
     #include <wiringPi.h>
     #include <stdint.h>
-    #define NULL 0
     #define CHANGE 1
 #ifdef __cplusplus
 extern "C"{
@@ -39,6 +38,7 @@ typedef uint8_t boolean;
 typedef uint8_t byte;
 
 #if !defined(NULL)
+    #define NULL 0
 #endif
 #ifdef __cplusplus
 }
@@ -102,8 +102,8 @@ class RCSwitch {
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
 
     static void handleInterrupt();
-    static bool receiveProtocol1(unsigned int changeCount);
-    static bool receiveProtocol2(unsigned int changeCount);
+    static bool receiveProtocol1(int changeCount);
+    static bool receiveProtocol2(int changeCount);
     int nReceiverInterrupt;
     int nTransmitterPin;
     int nPulseLength;
