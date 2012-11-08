@@ -37,20 +37,21 @@
 #include "daemon.h"
 #include "RCSwitch.h"
 
+RCSwitch mySwitch;
+
 int main(int argc, char* argv[]) {
   /**
-   * setup RCSwitch
+   * Setup wiringPi and RCSwitch
    */
-  if (wiringPiSetup () == -1) 
+  if (wiringPiSetup () == -1)
     return 1;
-  RCSwitch mySwitch = RCSwitch();
+  mySwitch = RCSwitch();
   usleep(50000);
   mySwitch.enableTransmit(0);
-  usleep(50000);
-
 
   nPlugs=10;
   int nState[nPlugs];
+  nTimeout=0;
   memset(nState, 0, sizeof(nState));
 
   /**
@@ -100,6 +101,10 @@ int main(int argc, char* argv[]) {
         nSwitchNumber = buffer[i]-48;
       }
       nAction = buffer[7]-48;
+      nTimeout=0;
+      if (strlen(buffer) >= 9) nTimeout = buffer[8]-48;
+      if (strlen(buffer) >= 10) nTimeout = nTimeout*10+buffer[9]-48;
+      if (strlen(buffer) >= 11) nTimeout = nTimeout*10+buffer[10]-48;
 
       /**
        * handle messages
@@ -114,7 +119,8 @@ int main(int argc, char* argv[]) {
            * off
            */
           case 0:
-            mySwitch.switchOff(nGroup, nSwitchNumber);
+            piThreadCreate(switchOff);
+            //mySwitch.switchOff(nGroup, nSwitchNumber);
             nState[nAddr] = 0;
             //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
             sprintf(msg, "%d", nState[nAddr]);
@@ -124,7 +130,8 @@ int main(int argc, char* argv[]) {
            * on
            */
           case 1:
-            mySwitch.switchOn(nGroup, nSwitchNumber);
+            piThreadCreate(switchOn);
+            //mySwitch.switchOn(nGroup, nSwitchNumber);
             nState[nAddr] = 1;
             //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
             sprintf(msg, "%d", nState[nAddr]);
@@ -185,5 +192,27 @@ int getAddr(const char* nGroup, int nSwitchNumber) {
     }
 
   return (dec-1)*5+nSwitchNumber-1;
+}
+
+PI_THREAD(switchOn) {
+  printf("switchOnThread: %d\n", nTimeout);
+  char tGroup[6];
+  int tSwitchNumber;
+  memcpy(tGroup, nGroup, sizeof(tGroup));
+  tSwitchNumber = nSwitchNumber;
+  sleep(nTimeout*60);
+  mySwitch.switchOn(tGroup, tSwitchNumber);
+  return 0;
+}
+
+PI_THREAD(switchOff) {
+  printf("switchOffThread: %d\n", nTimeout);
+  char tGroup[6];
+  int tSwitchNumber;
+  memcpy(tGroup, nGroup, sizeof(tGroup));
+  tSwitchNumber = nSwitchNumber;
+  sleep(nTimeout*60);
+  mySwitch.switchOff(tGroup, tSwitchNumber);
+  return 0;
 }
 

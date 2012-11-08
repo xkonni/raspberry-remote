@@ -8,7 +8,7 @@ CXXFLAGS += -lwiringPi
 default: daemon
 
 daemon: RCSwitch.o daemon.o
-	$(CXX) $+ -o $@ $(CXXFLAGS) $(LDFLAGS)
+	$(CXX) -pthread $+ -o $@ $(CXXFLAGS) $(LDFLAGS)
 
 send: RCSwitch.o send.o
 	$(CXX) $+ -o $@ $(CXXFLAGS) $(LDFLAGS)
