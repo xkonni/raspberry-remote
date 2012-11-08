@@ -1,11 +1,11 @@
 body {
   background-color:#000000;
   color: white;
-  font-size: 26px;
+  font-size: 20px;
 }
 
 h3 {
-  font-size: 30px;
+  font-size: 24px;
 }
 
 table {
@@ -16,20 +16,30 @@ table {
 
 td.outer {
 
-  padding: 20px;
-  width: 240px;
-  height: 240px;
+  padding: 5px;
+  width: 200px;
+  height: 200px;
 }
 
 td.inner {
-  width: 220;
-  height: 220px;
+  width: 180;
+  height: 180px;
+}
+
+p {
+  width: 480px;
+  text-align: center;
 }
 
 a:link {
   color: #ffffff;
   text-decoration: none;
-  font-size: 26px;
+  font-size: 20px;
+}
+a.bold:link {
+  color: #00ff00;
+  text-decoration: none;
+  font-weight: bold;
 }
 a:visited {
   color: #ffffff;
@@ -48,7 +58,7 @@ a.off:hover {
   text-decoration: none;
 }
 a:active {
-  color: #ffffff; i
+  color: #ffffff;
   text-decoration: none;
 }
 
