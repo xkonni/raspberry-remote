@@ -23,6 +23,9 @@ if (strlen($output) >= 8) {
   <head>
     <title>raspberry</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon"
+          type="image/png"
+          href="favicon.png">
     <meta name="viewport"
           content="
               height = device-height,
