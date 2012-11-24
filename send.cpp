@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   if (wiringPiSetup () == -1) return 1;
   printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
   RCSwitch mySwitch = RCSwitch();
+  mySwitch.setPulseLength(270);
   mySwitch.enableTransmit(PIN);
 
   switch(command) {
@@ -30,6 +31,14 @@ int main(int argc, char *argv[]) {
       break;
     case 0:
       mySwitch.switchOff(systemCode, unitCode);
+      break;
+    case 2:
+      // 00001 2 on binary coded
+      mySwitch.send("010101010001000101010001");
+      break;
+    case 3:
+      // 00001 2 on as TriState
+      mySwitch.sendTriState("FFFF0F0FFF0F");
       break;
     default:
       printf("command[%i] is unsupported\n", command);
