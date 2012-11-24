@@ -2,10 +2,14 @@
 include("config.php");
 // config
 
-$nGroup=$_GET['group'];
-$nSwitch=$_GET['switch'];
-$nAction=$_GET['action'];
-$nDelay=$_GET['delay'];
+if (isset($_GET['group'])) $nGroup=$_GET['group'];
+else $nGroup="";
+if (isset($_GET['switch'])) $nSwitch=$_GET['switch'];
+else $nSwitch="";
+if (isset($_GET['action'])) $nAction=$_GET['action'];
+else $nAction="";
+if (isset($_GET['delay'])) $nDelay=$_GET['delay'];
+else $nDelay=0;
 
 
 // actually send
@@ -38,11 +42,21 @@ if (strlen($output) >= 8) {
 <body>
 <?php
 echo "<P>Delay: ";
-echo "<A class=\"".($nDelay==0 ? bold:reg)."\" HREF=\"index.php?delay=0\">0</A> | ";
-echo "<A class=\"".($nDelay==5 ? bold:reg)."\" HREF=\"index.php?delay=5\">5</A> | ";
-echo "<A class=\"".($nDelay==15 ? bold:reg)."\" HREF=\"index.php?delay=15\">15</A> | ";
-echo "<A class=\"".($nDelay==30 ? bold:reg)."\" HREF=\"index.php?delay=30\">30</A> | ";
-echo "<A class=\"".($nDelay==60 ? bold:reg)."\" HREF=\"index.php?delay=60\">60</A>";
+echo "<A";
+if ($nDelay == 0) echo " class=\"bold\"";
+echo " HREF=\"index.php?delay=0\">0</A> | ";
+echo "<A";
+if ($nDelay == 5) echo " class=\"bold\"";
+echo " HREF=\"index.php?delay=5\">5</A> | ";
+echo "<A";
+if ($nDelay == 15) echo " class=\"bold\"";
+echo " HREF=\"index.php?delay=15\">15</A> | ";
+echo "<A";
+if ($nDelay == 30) echo " class=\"bold\"";
+echo " HREF=\"index.php?delay=30\">30</A> | ";
+echo "<A";
+if ($nDelay == 60) echo " class=\"bold\"";
+echo " HREF=\"index.php?delay=60\">60</A> ";
 echo "</P>";
 
 $index=0;
