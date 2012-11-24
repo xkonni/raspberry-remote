@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
   if (wiringPiSetup () == -1)
     return 1;
   mySwitch = RCSwitch();
+  mySwitch.setPulseLength(270);
   usleep(50000);
   mySwitch.enableTransmit(0);
 
