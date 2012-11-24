@@ -344,10 +344,14 @@ void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
             this->disableReceive();
             disabled_Receive = true;
         }
-        digitalWrite(this->nTransmitterPin, HIGH);
-        delayMicroseconds( this->nPulseLength * nHighPulses);
-        digitalWrite(this->nTransmitterPin, LOW);
-        delayMicroseconds( this->nPulseLength * nLowPulses);
+        for(int i=0; i<nHighPulses; i++) {
+          digitalWrite(this->nTransmitterPin, HIGH);
+          delayMicroseconds( this->nPulseLength);
+        }
+        for(int i=0; i<nLowPulses; i++) {
+          digitalWrite(this->nTransmitterPin, LOW);
+          delayMicroseconds( this->nPulseLength);
+        }
         if(disabled_Receive){
             this->enableReceive(nReceiverInterrupt_backup);
         }
