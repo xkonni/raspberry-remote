@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Raspberry-remote : Control remote plugs with the Raspberry Pi, features a webinterface. Uses RCSwitch and wiringPi." />
+    <meta name="description" content="Raspberry-remote : Control remote sockets with the Raspberry Pi, features a webinterface. Uses RCSwitch and wiringPi." />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/xkonni/raspberry-remote">View on GitHub</a>
 
           <h1 id="project_title">Raspberry-remote</h1>
-          <h2 id="project_tagline">Control remote plugs with the Raspberry Pi, features a webinterface. Uses RCSwitch and wiringPi.</h2>
+          <h2 id="project_tagline">Control remote sockets with the Raspberry Pi, features a webinterface. Uses RCSwitch and wiringPi.</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/xkonni/raspberry-remote/zipball/master">Download this project as a .zip file</a>
@@ -63,9 +63,14 @@ This project includes a web interface.</p>
 <p>Try if all is working with the send program</p>
 
 <ul>
-<li> Switch on single socket:</li>
-<li> ./send.cpp 00001 1 1</li>
+<li> Switch on single socket: ./send.cpp 00001 1 1</li>
 </ul><p>Use the daemon in combination with the webinterface</p>
+
+<ul>
+<li>Copy the files in webinterface in your http directory</li>
+<li>Edit ip address in config.php</li>
+<li>Edit the predefined setup of sockets in config.php</li>
+</ul>
       </section>
     </div>
 
