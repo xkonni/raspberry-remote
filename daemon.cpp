@@ -112,8 +112,10 @@ int main(int argc, char* argv[]) {
        */
       int nAddr = getAddr(nGroup, nSwitchNumber);
       char msg[13];
-      if (nAddr > nPlugs)
-        printf("Switch invalid: %s::%d\n", nGroup, nSwitchNumber);
+      if (nAddr > nPlugs) {
+        printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
+        n = write(newsockfd,"2",1);
+      }
       else {
         switch (nAction) {
           /**
