@@ -42,11 +42,13 @@ RCSwitch mySwitch;
 int main(int argc, char* argv[]) {
   /**
    * Setup wiringPi and RCSwitch
+   * set high priority scheduling
    */
   if (wiringPiSetup () == -1)
     return 1;
+  piHiPri(20);
   mySwitch = RCSwitch();
-  mySwitch.setPulseLength(270);
+  mySwitch.setPulseLength(300);
   usleep(50000);
   mySwitch.enableTransmit(0);
 
