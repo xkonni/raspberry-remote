@@ -1,7 +1,21 @@
 <?php
-include("config.php");
-// config
+/*
+ * Raspberry Remote
+ * http://xkonni.github.com/raspberry-remote/
+ *
+ * webinterface
+ *
+*/
 
+/*
+ * get configuration
+ * don't forget to edit config.php
+ */
+include("config.php");
+
+/*
+ * get parameters
+ */
 if (isset($_GET['group'])) $nGroup=$_GET['group'];
 else $nGroup="";
 if (isset($_GET['switch'])) $nSwitch=$_GET['switch'];
@@ -12,7 +26,11 @@ if (isset($_GET['delay'])) $nDelay=$_GET['delay'];
 else $nDelay=0;
 
 
-// actually send
+/*
+ * actually send to the daemon
+ * then reload the webpage without parameters
+ * except for delay
+ */
 $output = $nGroup.$nSwitch.$nAction.$nDelay;
 if (strlen($output) >= 8) {
   $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
@@ -41,6 +59,9 @@ if (strlen($output) >= 8) {
   </head>
 <body>
 <?php
+/*
+ * links to change the delay
+ */
 echo "<P>Delay: ";
 echo "<A";
 if ($nDelay == 0) echo " class=\"bold\"";
@@ -59,31 +80,36 @@ if ($nDelay == 60) echo " class=\"bold\"";
 echo " HREF=\"index.php?delay=60\">60</A> ";
 echo "</P>";
 
+/*
+ * table containing all configured sockets
+ */
 $index=0;
 echo "<TABLE BORDER=\"0\">\n";
 foreach($config as $current) {
-  $ig = $current[0];
-  $is = $current[1];
-  $id = $current[2];
+  if ($current != "") {
+    $ig = $current[0];
+    $is = $current[1];
+    $id = $current[2];
 
-  $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
-  socket_bind($socket, $source) or die("Could not bind to socket\n");
-  socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
+    if ($index%2 == 0) echo "<TR>\n";
 
-  $output = $ig.$is."2";
-  socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
-  $state = socket_read($socket, 2048);
-  if ($state == 0) {
-    $color=" BGCOLOR=\"#C00000\"";
-    $ia = 1;
-    $direction="on";
-  }
-  if ($state == 1) {
-    $color=" BGCOLOR=\"#00C000\"";
-    $ia = 0;
-    $direction="off";
-  }
-  if ($index%2 == 0) echo "<TR>\n";
+    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
+    socket_bind($socket, $source) or die("Could not bind to socket\n");
+    socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
+
+    $output = $ig.$is."2";
+    socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
+    $state = socket_read($socket, 2048);
+    if ($state == 0) {
+      $color=" BGCOLOR=\"#C00000\"";
+      $ia = 1;
+      $direction="on";
+    }
+    if ($state == 1) {
+      $color=" BGCOLOR=\"#00C000\"";
+      $ia = 0;
+      $direction="off";
+    }
     echo "<TD class=outer ".$color.">\n";
     echo "<TABLE><TR><TD class=inner BGCOLOR=\"#000000\">";
     echo "<A CLASS=\"".$direction."\" HREF=\"?group=".$ig;
@@ -97,9 +123,13 @@ foreach($config as $current) {
     echo "</TD>";
     echo "</TR></TABLE>\n";
     echo "</TD>\n";
+    socket_close($socket);
+  }
+  else {
+    echo "<TD></TD>\n";
+  }
   if ($index%2 == 1) echo "</TR>\n";
   $index++;
-  socket_close($socket);
 }
 echo "</TR></TABLE>";
 ?>
