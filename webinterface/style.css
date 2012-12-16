@@ -1,11 +1,11 @@
 body {
   background-color:#000000;
   color: white;
-  font-size: 20px;
+  font-size: 1.5em;
 }
 
 h3 {
-  font-size: 24px;
+  font-size: 1.75em;
 }
 
 table {
@@ -14,40 +14,21 @@ table {
   border-spacing: 10px;
 }
 
-td.outer {
-
-  padding: 5px;
-  width: 200px;
-  height: 200px;
-}
-
-td.inner {
-  width: 180;
-  height: 180px;
-}
-
-p {
-  width: 480px;
-  text-align: center;
-}
-
 a:link {
   color: #ffffff;
   text-decoration: none;
 }
-a.bold:link {
+a.active:link {
   color: #00ff00;
   text-decoration: none;
-  font-weight: bold;
 }
 a:visited {
   color: #ffffff;
   text-decoration: none;
 }
-a.bold:visited {
+a.active:visited {
   color: #00ff00;
   text-decoration: none;
-  font-weight: bold;
 }
 a:hover {
   color: #298aad;
@@ -66,7 +47,68 @@ a:active {
   text-decoration: none;
 }
 
+/* Default */
+td.outer {
+  padding: 5px;
+  width: 300px;
+  height: 170px;
+}
+
+td.inner {
+  width: 280;
+  height: 150px;
+}
+
+p {
+  width: 700px;
+  text-align: center;
+}
+
 /* Android HDPI */
 @media only screen and (-webkit-device-pixel-ratio:1.5) {
+  td.outer {
+    padding: 5px;
+    width: 200px;
+    height: 170px;
+  }
+
+  td.inner {
+    width: 180;
+    height: 150px;
+  }
+
+  p {
+    width: 480px;
+    text-align: center;
+  }
+}
+
+/* Android 720p */
+@media only screen and (-webkit-device-pixel-ratio:2) {
+  body {
+    background-color:#000000;
+    color: white;
+    font-size: 2em;
+  }
+
+  h3 {
+    font-size: 2.25em;
+  }
+
+  td.outer {
+    padding: 5px;
+    width: 350px;
+    height: 170px;
+  }
+
+  td.inner {
+    width: 330;
+    height: 150px;
+  }
+
+  p {
+    width: 720px;
+    text-align: center;
+  }
 }
 
