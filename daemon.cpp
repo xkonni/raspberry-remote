@@ -4,7 +4,7 @@
  * Setup
  *   Power to pin4
  *   GND   to pin6
- *   DATA  to pin7/gpio4
+ *   DATA  to pin11/gpio0
  *
  * Usage
  *   send xxxxxyyz to ip:port
