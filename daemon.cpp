@@ -17,13 +17,13 @@
  *
  *  Examples of remote actions
  *    Switch plug 01 on 00001 to on
- *      echo 00001011 | nc 192.168.1.5 12345
+ *      echo 01111011 | nc localhost 11337
  *
  *    Switch plug 01 on 00001 to off
- *      echo 00001010 | nc 192.168.1.5 12345
+ *      echo 01111010 | nc localhost 11337
  *
  *    Get status of plug 01 on 00001
- *      echo 00001012 | nc 192.168.1.5 12345
+ *      echo 01111012 | nc localhost 11337
  */
 
 #include <stdio.h>
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
   usleep(50000);
   mySwitch.enableTransmit(0);
 
-  nPlugs=10;
+  nPlugs=153;
   int nState[nPlugs];
   nTimeout=0;
   memset(nState, 0, sizeof(nState));
@@ -105,6 +105,11 @@ int main(int argc, char* argv[]) {
       }
       nAction = buffer[7]-48;
       nTimeout=0;
+
+printf("nGroup: %s\n", nGroup);
+printf("nSwitchNumber: %i\n", nSwitchNumber);
+printf("nAction: %i\n", nAction);
+
       if (strlen(buffer) >= 9) nTimeout = buffer[8]-48;
       if (strlen(buffer) >= 10) nTimeout = nTimeout*10+buffer[9]-48;
       if (strlen(buffer) >= 11) nTimeout = nTimeout*10+buffer[10]-48;
@@ -113,6 +118,8 @@ int main(int argc, char* argv[]) {
        * handle messages
        */
       int nAddr = getAddr(nGroup, nSwitchNumber);
+printf("nAddr: %i\n", nAddr);
+printf("nPlugs: %i\n", nPlugs);
       char msg[13];
       if (nAddr > nPlugs) {
         printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
@@ -124,8 +131,8 @@ int main(int argc, char* argv[]) {
            * off
            */
           case 0:
-            piThreadCreate(switchOff);
-            //mySwitch.switchOff(nGroup, nSwitchNumber);
+            //piThreadCreate(switchOff);
+            mySwitch.switchOff(nGroup, nSwitchNumber);
             nState[nAddr] = 0;
             //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
             sprintf(msg, "%d", nState[nAddr]);
@@ -135,8 +142,8 @@ int main(int argc, char* argv[]) {
            * on
            */
           case 1:
-            piThreadCreate(switchOn);
-            //mySwitch.switchOn(nGroup, nSwitchNumber);
+            //piThreadCreate(switchOn);
+            mySwitch.switchOn(nGroup, nSwitchNumber);
             nState[nAddr] = 1;
             //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
             sprintf(msg, "%d", nState[nAddr]);
@@ -146,7 +153,7 @@ int main(int argc, char* argv[]) {
            * status
            */
           case 2:
-            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
             sprintf(msg, "%d", nState[nAddr]);
             n = write(newsockfd,msg,1);
             break;
@@ -160,12 +167,14 @@ int main(int argc, char* argv[]) {
 
     if (n < 0)
       error("ERROR writing to socket");
+
+    close(newsockfd);
   }
 
   /**
    * terminate
    */
-  close(newsockfd);
+  //close(newsockfd);
   close(sockfd);
   return 0;
 }
