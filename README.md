@@ -27,8 +27,31 @@ Try if all is working with the send program
 Pass the `-b`-option to use binary socket numbering instead of the common "only one switch up"-numbering. See [Binary Mode](#binary-mode) for further details.
 
 ## Binary Mode
+Most sockets available for purchase use the following numbering scheme:
 
+no. | address
+--- | -------
+  A |   10000
+  B |   01000
+  C |   00100
+  D |   00010
+  E |   00001
+  
+Of course, this doesn't make much sense, because it limits the maximum of supported sockets to 5 (or 6, if 00000 is included), and is less intuitive. Using real binary numbering would increase the limit of supported sockets per system to 31, and be more intutive. In binary mode, the sockets need to be numbered as below:
 
+no. | address
+--- | -------
+  1 |   00001
+  2 |   00010
+  3 |   00011
+  4 |   00100
+  5 |   00101
+  8 |   01000
+ 16 |   10000
+ 31 |   11111
+ 
+Note that you need to configure your sockets to this kind of numbering to use this feature. This often includes that the dedicated remote that gets shipped with the sockets often is rendered useless, since it only supports the former way of numbering.
+  
 ## Daemon
 Use the daemon in combination with the webinterface
 * Copy the files in webinterface in your http directory
