@@ -24,7 +24,7 @@ This project includes a web interface.
 Try if all is working with the send program
 *  Switch on single socket: `./send.cpp 00001 1 1`
 
-Pass the `-b`-option to use binary socket numbering instead of the common "only one switch up"-numbering. See [Binary Mode](#Binary Mode) for further details.
+Pass the `-b`-option to use binary socket numbering instead of the common "only one switch up"-numbering. See [Binary Mode](#Binary-Mode) for further details.
 
 ## Binary Mode
 
