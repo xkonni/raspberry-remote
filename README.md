@@ -22,8 +22,14 @@ This project includes a web interface.
 
 ## Usage
 Try if all is working with the send program
-*  Switch on single socket: ./send.cpp 00001 1 1
+*  Switch on single socket: `./send.cpp 00001 1 1`
 
+Pass the `-b`-option to use binary socket numbering instead of the common "only one switch up"-numbering. See [Binary Mode](Binary Mode) for further details.
+
+## Binary Mode
+
+
+## Daemon
 Use the daemon in combination with the webinterface
 * Copy the files in webinterface in your http directory
 * Edit ip address in config.php
