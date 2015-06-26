@@ -62,6 +62,13 @@ class RCSwitch {
     void switchOff(char* sGroup, int nSwitchNumber);
     void switchOn(char sFamily, int nGroup, int nDevice);
     void switchOff(char sFamily, int nGroup, int nDevice);
+    /**
+     * new methods, that use binary representation of
+     * socket numbering instead of the old represenation
+     * by switching each a differend switch on.
+     */
+    void switchOnBinary(char* sGroup, int nSwitchNumber);
+    void switchOffBinary(char* sGroup, int nSwitchNumber);
 
     void sendTriState(char* Code);
     void send(unsigned long Code, unsigned int length);
@@ -90,6 +97,7 @@ class RCSwitch {
   private:
     char* getCodeWordB(int nGroupNumber, int nSwitchNumber, boolean bStatus);
     char* getCodeWordA(char* sGroup, int nSwitchNumber, boolean bStatus);
+    char* getCodeWordD(char* sGroup, int nSwitchNumber, boolean bStatus);
     char* getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bStatus);
     void sendT0();
     void sendT1();

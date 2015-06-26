@@ -25,6 +25,8 @@
 */
 
 #include "RCSwitch.h"
+#include <iostream>
+#include <bitset>
 
 unsigned long RCSwitch::nReceivedValue = NULL;
 unsigned int RCSwitch::nReceivedBitlength = 0;
@@ -172,6 +174,26 @@ void RCSwitch::switchOff(char* sGroup, int nChannel) {
 }
 
 /**
+ * Switch a remote switch on (Type A with 10 pole DIP switches), now with real-binary numbering (see comments in getCodeWordA and getCodeWordD)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param nChannelCode  Number of the switch itself (1..31)
+ */
+void RCSwitch::switchOnBinary(char* sGroup, int nChannel) {
+  this->sendTriState( this->getCodeWordD(sGroup, nChannel, true) );
+}
+
+/**
+ * Switch a remote switch off (Type A with 10 pole DIP switches), now with real-binary numbering (see comments in getCodeWordA and getCodeWordD)
+ *
+ * @param sGroup        Code of the switch group (refers to DIP switches 1..5 where "1" = on and "0" = off, if all DIP switches are on it's "11111")
+ * @param nChannelCode  Number of the switch itself (1..31)
+ */
+void RCSwitch::switchOffBinary(char* sGroup, int nChannel) {
+  this->sendTriState( this->getCodeWordD(sGroup, nChannel, false) );
+}
+
+/**
  * Returns a char[13], representing the Code Word to be send.
  * A Code Word consists of 9 address bits, 3 data bits and one sync bit but in our case only the first 8 address bits and the last 2 data bits were used.
  * A Code Bit can have 4 different states: "F" (floating), "0" (low), "1" (high), "S" (synchronous bit)
@@ -225,7 +247,14 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
 char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
    int nReturnPos = 0;
    static char sReturn[13];
-
+  /*
+   * The codeword, that needs to be sent, consists of three main parts:
+   * char 0 to 4: Group-Number (already binary)
+   * char 5 to 9: Socket Number (converted to binary, where the socket number 0-5 sets the only active bit in the return string)
+   *              e.g: socket 1 means: bit 1 is on, others off: 10000
+   *                   socket 5 means: bit 4 is on, others off: 00010
+   * char 10 to 11: Power state, where on means '01' and off means '10'
+  */
   const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
   if (nChannelCode < 1 || nChannelCode > 5) {
@@ -254,7 +283,97 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
     sReturn[nReturnPos++] = '0';
   }
   sReturn[nReturnPos] = '\0';
+  //std::cout << sReturn;
+  return sReturn;
+}
 
+/**
+ * Like getCodeWord  (Type A)
+ * Like getCodeWordA, but with real binary socket numbers instead of numbering by position of active bit.
+ */
+
+/**
+ * To use this function, the sockets need to be numbered in real binary after the following scheme:
+ *
+ * |no. | old representation | new binary |
+ * |--------------------------------------|
+ * |   1|              10000 |      00001 |
+ * |   2|              01000 |      00010 |
+ * |   3|              00100 |      00011 |
+ * |   4|              00010 |      00100 |
+ * |   5|              00001 |      00101 |
+ * |   6|              ----- |      00110 |
+ * |   8|              ----- |      01000 |
+ * |  16|              ----- |      10000 |
+ * |  31|              ----- |      11111 |
+ * |--------------------------------------|
+ *
+ * This means, that now more than 5 sockets can be used per system.
+ * It is, indeed, necessary, to set all the sockets used to the new binary numbering system.
+ * Therefore, most systems won't work with their dedicated remotes anymor, which
+ * only provide buttons for socket A to E, sending only the old representation as noted
+ * above.
+ */
+
+char* RCSwitch::getCodeWordD(char* sGroup, int nChannelCode, boolean bStatus) {
+   int nReturnPos = 0;
+   static char sReturn[13];
+
+  /**
+   * The codeword, that needs to be sent, consists of three main parts:
+   * char 0 to 4: Group-Number (already binary)
+   * char 5 to 9: Socket Number (converted to binary, former: the socket number 0-5 sets the only active bit in the return string)
+   *              e.g: socket 1 means: bit 1 is on, others off: 10000
+   *                   socket 5 means: bit 4 is on, others off: 00010
+   *              now: real binary representation of decimal socket number
+   * char 10 to 11: Power state, where on means '01' and off means '10'
+  */
+
+  //const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" }; //former conversion of socket number to binary
+
+  if (nChannelCode < 1 || nChannelCode > 31) {
+      return '\0';
+  }
+
+  for (int i = 0; i<5; i++) {
+    if (sGroup[i] == '0') {
+      sReturn[nReturnPos++] = 'F';
+    } else if (sGroup[i] == '1') {
+      sReturn[nReturnPos++] = '0';
+    } else {
+      return '\0';
+    }
+  }
+
+  std::string str = std::bitset<5>(nChannelCode).to_string(); //to binary;
+  std::string temp = str;
+  /*if (str.size() == 1) {
+    str="0000"+temp;
+  } else if (str.size() == 2) {
+    str="000"+temp;
+  } else if (str.size() == 3) {
+    str="00"+temp;
+  } else if (str.size() == 4) {
+    str = "0"+temp;
+  }*/
+
+  for(std::string::size_type i = 0; i < str.size(); ++i) {
+    if (str[i] == '0') {
+      sReturn[nReturnPos++] = 'F';
+    } else if (str[i] == '1') {
+      sReturn[nReturnPos++] = '0';
+    }
+  }
+
+  if (bStatus) {
+    sReturn[nReturnPos++] = '0';
+    sReturn[nReturnPos++] = 'F';
+  } else {
+    sReturn[nReturnPos++] = 'F';
+    sReturn[nReturnPos++] = '0';
+  }
+  sReturn[nReturnPos] = '\0';
+  //std::cout << sReturn;
   return sReturn;
 }
 
