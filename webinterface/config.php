@@ -10,7 +10,6 @@
 /*
  * define ip address and port here
  */
-$source = $_SERVER['SERVER_ADDR'];
 $target = '192.168.11.124';
 $port = 11337;
 
