@@ -7,11 +7,26 @@
  *
 */
 
+
+function daemon_send($target, $port, $output)
+{
+    $fp = fsockopen($target, $port, $errno, $errstr, 30) or die("$errstr ($errno)\n");
+    fwrite($fp, $output);
+    $state = "";
+    while(!feof($fp))
+    {
+        $state .= fgets($fp, 2);
+    }
+    fclose($fp);
+    return $state;
+}
+
+
 /*
  * get configuration
  * don't forget to edit config.php
  */
-include("config.php");
+require 'config.php';
 
 /*
  * get parameters
@@ -33,12 +48,9 @@ else $nDelay=0;
  */
 $output = $nGroup.$nSwitch.$nAction.$nDelay;
 if (strlen($output) >= 8) {
-  $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
-  socket_bind($socket, $source) or die("Could not bind to socket\n");
-  socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
-  socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
-  socket_close($socket);
+  daemon_send($target, $port, $output);
   header("Location: index.php?delay=$nDelay");
+  exit();
 }
 ?>
 <html>
@@ -93,13 +105,8 @@ foreach($config as $current) {
 
     if ($index%2 == 0) echo "<TR>\n";
 
-    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
-    socket_bind($socket, $source) or die("Could not bind to socket\n");
-    socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
-
     $output = $ig.$is."2";
-    socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
-    $state = socket_read($socket, 2048);
+    $state = daemon_send($target, $port, $output);
     if ($state == 0) {
       $color=" BGCOLOR=\"#C00000\"";
       $ia = 1;
@@ -123,7 +130,6 @@ foreach($config as $current) {
     echo "</TD>";
     echo "</TR></TABLE>\n";
     echo "</TD>\n";
-    socket_close($socket);
   }
   else {
     echo "<TD></TD>\n";
