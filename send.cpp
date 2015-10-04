@@ -115,9 +115,11 @@ int main(int argc, char *argv[]) {
     int unitCode;
     int command;
 
-    printf(argc);
 
+
+    printf("test1");
     if (argc > 5) {
+        printf("test2");
         /**
          * no matter, which mode is used, at least 4 arguments are required:
          * 0: command name (send)
