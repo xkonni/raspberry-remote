@@ -29,7 +29,7 @@ int multipleSwitch(int argc, char *argv[]) {
     unsigned int numberOfActuators;
     unsigned int i;
 
-    printf("multi Mode");
+    printf("multi Mode \n");
 
     command = atoi(argv[argc - 1]);
 
@@ -95,8 +95,8 @@ int multipleSwitch(int argc, char *argv[]) {
             }
 //            return 0;
         }
-        return 0;
     }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 
     printf("test1");
     if (argc > 5) {
-        printf("test2");
+//        printf("test2");
         /**
          * no matter, which mode is used, at least 4 arguments are required:
          * 0: command name (send)
