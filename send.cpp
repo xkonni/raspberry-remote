@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
     int unitCode;
     int command;
 
+    printf(argc);
+
     if (argc > 5) {
         /**
          * no matter, which mode is used, at least 4 arguments are required:
