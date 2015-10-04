@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
          * if there are less arguments, the help should be printed
          * and the application should terminate.
          */
-        multipleSwitch(argc, *argv);
+        multipleSwitch(argc, argv);
         return 0;
     }
 
