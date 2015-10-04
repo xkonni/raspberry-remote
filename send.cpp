@@ -33,9 +33,7 @@ int multipleSwitch(int argc, char *argv[]) {
 
     command = atoi(argv[argc - 1]);
 
-    std::string firstArgument = argv[1];
-
-    if (firstArgument = "-b") {
+    if (argv[1] = "-b") {
         binaryMode = true;
         numberOfActuators = (argc - 3) / 2;
     } else {
