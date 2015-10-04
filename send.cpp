@@ -154,13 +154,13 @@ int main(int argc, char *argv[]) {
 }
 
 int multipleSwitch(int argc, char *argv[]) {
-    int PIN = 0;
+    unsigned int PIN = 0;
     bool binaryMode = false;
     char *systemCode;
-    int unitCode;
-    int command;
-    int numberOfActuators;
-    int i;
+    unsigned int unitCode;
+    unsigned int command;
+    unsigned int numberOfActuators;
+    unsigned int i;
 
     printf("multi Mode");
 
@@ -172,6 +172,13 @@ int multipleSwitch(int argc, char *argv[]) {
     } else {
         numberOfActuators = (argc - 2) / 2;
     }
+
+    if (wiringPiSetup() == -1) return 1;
+    piHiPri(20);
+    printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
+    RCSwitch mySwitch = RCSwitch();
+    mySwitch.setPulseLength(300);
+    mySwitch.enableTransmit(PIN);
 
     for (i = 1; i < numberOfActuators + 1; i++) {
 
