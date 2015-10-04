@@ -20,6 +20,87 @@ void printUsage() {
     printf("is rendered useless, but more than 6 sockets are supported.\n");
 }
 
+int multipleSwitch(int argc, char *argv[]) {
+    unsigned int PIN = 0;
+    bool binaryMode = false;
+    char *systemCode;
+    unsigned int unitCode;
+    unsigned int command;
+    unsigned int numberOfActuators;
+    unsigned int i;
+
+    printf("multi Mode");
+
+    command = atoi(argv[argc - 1]);
+
+    std::string firstArgument = argv[1];
+
+    if (firstArgument = "-b") {
+        binaryMode = true;
+        numberOfActuators = (argc - 3) / 2;
+    } else {
+        numberOfActuators = (argc - 2) / 2;
+    }
+
+    if (wiringPiSetup() == -1) return 1;
+    piHiPri(20);
+    printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
+    RCSwitch mySwitch = RCSwitch();
+    mySwitch.setPulseLength(300);
+    mySwitch.enableTransmit(PIN);
+
+    for (i = 1; i < numberOfActuators + 1; i++) {
+
+        int indexSystemCode = 0;
+        int indexUnitCode = 0;
+
+        indexSystemCode = 2 + 2 * (i - 1);
+        indexUnitCode = 1 + 2 * i;
+
+        systemCode = argv[indexSystemCode];
+        unitCode = atoi(argv[indexUnitCode]);
+
+        if (binaryMode) {
+            switch (command) {
+                case 1:
+                    mySwitch.switchOnBinary(systemCode, unitCode);
+                    break;
+                case 0:
+                    mySwitch.switchOffBinary(systemCode, unitCode);
+                    break;
+                default:
+                    printf("command[%i] is unsupported\n", command);
+                    printUsage();
+//                    return -1;
+            }
+//            return 0;
+        } else {
+            switch (command) {
+                case 1:
+                    mySwitch.switchOn(systemCode, unitCode);
+                    break;
+                case 0:
+                    mySwitch.switchOff(systemCode, unitCode);
+                    break;
+                case 2:
+                    // 00001 2 on binary coded
+                    mySwitch.send("010101010001000101010001");
+                    break;
+                case 3:
+                    // 00001 2 on as TriState
+                    mySwitch.sendTriState("FFFF0F0FFF0F");
+                    break;
+                default:
+                    printf("command[%i] is unsupported\n", command);
+                    printUsage();
+//                    return -1;
+            }
+//            return 0;
+        }
+        return 0;
+    }
+}
+
 int main(int argc, char *argv[]) {
     /**
      * output PIN is hardcoded for testing purposes
@@ -148,87 +229,6 @@ int main(int argc, char *argv[]) {
                 printf("command[%i] is unsupported\n", command);
                 printUsage();
                 return -1;
-        }
-        return 0;
-    }
-}
-
-int multipleSwitch(int argc, char *argv[]) {
-    unsigned int PIN = 0;
-    bool binaryMode = false;
-    char *systemCode;
-    unsigned int unitCode;
-    unsigned int command;
-    unsigned int numberOfActuators;
-    unsigned int i;
-
-    printf("multi Mode");
-
-    command = atoi(argv[argc - 1]);
-
-    std::string firstArgument = argv[1];
-
-    if (firstArgument = "-b") {
-        binaryMode = true;
-        numberOfActuators = (argc - 3) / 2;
-    } else {
-        numberOfActuators = (argc - 2) / 2;
-    }
-
-    if (wiringPiSetup() == -1) return 1;
-    piHiPri(20);
-    printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
-    RCSwitch mySwitch = RCSwitch();
-    mySwitch.setPulseLength(300);
-    mySwitch.enableTransmit(PIN);
-
-    for (i = 1; i < numberOfActuators + 1; i++) {
-
-        int indexSystemCode = 0;
-        int indexUnitCode = 0;
-
-        indexSystemCode = 2 + 2 * (i - 1);
-        indexUnitCode = 1 + 2 * i;
-
-        systemCode = argv[indexSystemCode];
-        unitCode = atoi(argv[indexUnitCode]);
-
-        if (binaryMode) {
-            switch (command) {
-                case 1:
-                    mySwitch.switchOnBinary(systemCode, unitCode);
-                    break;
-                case 0:
-                    mySwitch.switchOffBinary(systemCode, unitCode);
-                    break;
-                default:
-                    printf("command[%i] is unsupported\n", command);
-                    printUsage();
-//                    return -1;
-            }
-//            return 0;
-        } else {
-            switch (command) {
-                case 1:
-                    mySwitch.switchOn(systemCode, unitCode);
-                    break;
-                case 0:
-                    mySwitch.switchOff(systemCode, unitCode);
-                    break;
-                case 2:
-                    // 00001 2 on binary coded
-                    mySwitch.send("010101010001000101010001");
-                    break;
-                case 3:
-                    // 00001 2 on as TriState
-                    mySwitch.sendTriState("FFFF0F0FFF0F");
-                    break;
-                default:
-                    printf("command[%i] is unsupported\n", command);
-                    printUsage();
-//                    return -1;
-            }
-//            return 0;
         }
         return 0;
     }
