@@ -42,7 +42,6 @@ int multipleSwitch(int argc, char *argv[]) {
 
     if (wiringPiSetup() == -1) return 1;
     piHiPri(20);
-    printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
     RCSwitch mySwitch = RCSwitch();
     mySwitch.setPulseLength(300);
     mySwitch.enableTransmit(PIN);
@@ -58,6 +57,7 @@ int multipleSwitch(int argc, char *argv[]) {
         systemCode = argv[indexSystemCode];
         unitCode = atoi(argv[indexUnitCode]);
 
+        printf("sending systemCode[%s] unitCode[%i] command[%i]\n", systemCode, unitCode, command);
         if (binaryMode) {
             switch (command) {
                 case 1:
