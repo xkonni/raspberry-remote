@@ -65,16 +65,23 @@ int main(int argc, char* argv[]) {
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
   int n;
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0)
-    error("ERROR opening socket");
+
   bzero((char *) &serv_addr, sizeof(serv_addr));
   portno = PORT;
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
   serv_addr.sin_port = htons(portno);
+  // receiving socket
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0)
+    error("ERROR opening socket");
   if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     error("ERROR on binding");
+
+  // sending socket
+  newsockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (newsockfd < 0)
+    error("ERROR opening socket");
 
   /*
    * start listening
@@ -91,7 +98,6 @@ int main(int argc, char* argv[]) {
     n = read(newsockfd,buffer,255);
     if (n < 0)
       error("ERROR reading from socket");
-
 
     printf("message: %s\n", buffer);
     if (strlen(buffer) >= 8) {
