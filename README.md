@@ -4,6 +4,13 @@
 Control your remote power sockets with a raspberry pi.
 This project includes a web interface.
 
+There's also a powerswitch branch, if you want to imitate a ConnAir remote
+station on the raspberry and use the nice android app from
+http://power-switch.eu
+
+And in case your Raspberry is running Windows10, check
+https://github.com/Panzenbaby/Raspberry-Remote-for-Windows-10-IoT-Core
+
 ## Credits
 * sui li for creating RCSwitch for the arduino
 * r10r for porting RCSwitch to the raspberry
