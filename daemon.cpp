@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
 								return -1;
 							}
 					}
-						printf("got systemCode[%s]\n",nGroup);
+						printf("got systemCode[%s] ",nGroup);
 						switch(nSwitchNumber){
 						// unit/group code 01-16
 							case 1:     { printf("1 ... ");	    strcat(pSystemCode,"0000");	break; }
