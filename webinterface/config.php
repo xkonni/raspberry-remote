@@ -10,7 +10,7 @@
 /*
  * define ip address and port here
  */
-$source = $_SERVER['SERVER_ADDR']; 
+$source = $_SERVER['SERVER_ADDR'];
 $target = '127.0.0.1';
 $port = 11337;
 
@@ -22,12 +22,12 @@ $port = 11337;
  *
  */
 $config=array(
-	array("1","00100","1","SD1"),
-	array("1","00100","2","SD2"),
-	array("1","00100","3","SD3"),
-	array("1","00100","4","SD4"),
-	array("1","00100","5","SD5"),
-	array("1","00100","6","SD6"),
-	array("2","7","2","LichtKueche"),	
- 
+  array("1", "00100", "01", "Steckdose1"),
+  array("1", "00100", "02", "Steckdose2"),
+  array("1", "00100", "03", "Steckdose3"),
+  array("1", "00100", "04", "Steckdose4"),
+  array("1", "00100", "05", "Steckdose5"),
+  array("1", "00100", "06", "Steckdose6"),
+  array("2", "7"	, "02", "Kueche"),
+)
 ?>

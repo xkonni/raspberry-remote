@@ -11,17 +11,17 @@
 
 int main(int argc, char *argv[]) {
 
- /*
- output PIN is hardcoded for testing purposes
- see https://projects.drogon.net/raspberry-pi/wiringpi/pins/
- for pin mapping of the raspberry pi GPIO connector
- */
-
- sendCode(atoi(argv[1]),argv[2],atoi(argv[3], atoi(argv[4]);
- }
- void sendCode (int systemCodeType, char* systemCode, int unitCode, int command){
+	/*
+	output PIN is hardcoded for testing purposes
+	see https://projects.drogon.net/raspberry-pi/wiringpi/pins/
+	for pin mapping of the raspberry pi GPIO connector
+	*/
+	int systemCodeType = atoi(argv[1]);
+ 	char* systemCode = argv[2];
+	int unitCode = atoi(argv[3]);
+	int command = atoi(argv[4]);
 	int PIN = 0; //GPIO-Pin 17
- 	if (wiringPiSetup () == -1) return 1;
+	if (wiringPiSetup () == -1) return 1;
  	printf("sending systemCodeType[%i] systemCode[%s] unitCode[%i] command[%i] ...\n", systemCodeType, systemCode, unitCode, command);
  	RCSwitch mySwitch = RCSwitch();
  	printf("defining transmit PIN[%i] ... ",PIN);

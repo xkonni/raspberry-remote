@@ -116,6 +116,7 @@ foreach($config as $current) {
     echo "<TD class=outer ".$color.">\n";
     echo "<TABLE><TR><TD class=inner BGCOLOR=\"#000000\">";
     echo "<A CLASS=\"".$direction."\" HREF=\"?group=".$ig;
+    echo "&sys=".$iSys;
     echo "&switch=".$is;
     echo "&action=".$ia;
     echo "&delay=".$nDelay."\">";
