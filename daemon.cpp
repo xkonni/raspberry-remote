@@ -7,7 +7,8 @@
  *   DATA  to pin11/gpio0
  *
  * Usage
- *   send xxxxxyyz to ip:port
+ *   send axxxxxyyz to ip:port
+ *   a		systemcode. 1 for classic elro, 2 for Intertechno 
  *   xxxxx  encoding
  *          00001 for first channel
  *   yy     plug
@@ -17,13 +18,17 @@
  *
  *  Examples of remote actions
  *    Switch plug 01 on 00001 to on
- *      echo 01111011 | nc localhost 11337
+ *      echo 101111011 | nc localhost 11337
  *
  *    Switch plug 01 on 00001 to off
- *      echo 01111010 | nc localhost 11337
+ *      echo 101111010 | nc localhost 11337
  *
  *    Get status of plug 01 on 00001
- *      echo 01111012 | nc localhost 11337
+ *      echo 101111012 | nc localhost 11337
+ *
+ *	  Switch intertechno plug 2 on group 2 to on
+ *		echo 2221 | nc localhost 11337
+ *
  */
 
 #include <stdio.h>
@@ -218,7 +223,7 @@ int main(int argc, char* argv[]) {
 								printf("systemCode[%s] is unsupported\n", nGroup);
 								return -1;
 							}
-					}
+						}
 						printf("got systemCode[%s] ",nGroup);
 						switch(nSwitchNumber){
 						// unit/group code 01-16
