@@ -16,18 +16,12 @@ $port = 11337;
 
 /*
  * specify configuration of sockets to use
- *   array("group", "plug", "description");
+ *   array("systemcode", "group" , "plug", "description");
  * use empty string to create empty box
  *   ""
  *
  */
 $config=array(
-  array("1", "00100", "01", "Steckdose1"),
-  array("1", "00100", "02", "Steckdose2"),
-  array("1", "00100", "03", "Steckdose3"),
-  array("1", "00100", "04", "Steckdose4"),
-  array("1", "00100", "05", "Steckdose5"),
-  array("1", "00100", "06", "Steckdose6"),
-  array("2", "7"	, "02", "Kueche"),
-)
+  array("1", "00100", "01", "PowerPlug1"),
+  )
 ?>
