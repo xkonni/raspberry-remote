@@ -7,30 +7,17 @@
  *
 */
 
-
-function daemon_send($target, $port, $output)
-{
-    $fp = fsockopen($target, $port, $errno, $errstr, 30) or die("$errstr ($errno)\n");
-    fwrite($fp, $output);
-    $state = "";
-    while(!feof($fp))
-    {
-        $state .= fgets($fp, 2);
-    }
-    fclose($fp);
-    return $state;
-}
-
-
 /*
  * get configuration
  * don't forget to edit config.php
  */
-require 'config.php';
+include("config.php");
 
 /*
  * get parameters
  */
+ if (isset($_GET['sys'])) $nSys=$_GET['sys'];
+else $nSys="";
 if (isset($_GET['group'])) $nGroup=$_GET['group'];
 else $nGroup="";
 if (isset($_GET['switch'])) $nSwitch=$_GET['switch'];
@@ -46,11 +33,14 @@ else $nDelay=0;
  * then reload the webpage without parameters
  * except for delay
  */
-$output = $nGroup.$nSwitch.$nAction.$nDelay;
-if (strlen($output) >= 8) {
-  daemon_send($target, $port, $output);
+$output = $nSys.$nGroup.$nSwitch.$nAction.$nDelay;
+if (strlen($output) >= 5) {
+  $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
+  socket_bind($socket, $source) or die("Could not bind to socket\n");
+  socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
+  socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
+  socket_close($socket);
   header("Location: index.php?delay=$nDelay");
-  exit();
 }
 ?>
 <html>
@@ -99,14 +89,20 @@ $index=0;
 echo "<TABLE BORDER=\"0\">\n";
 foreach($config as $current) {
   if ($current != "") {
-    $ig = $current[0];
-    $is = $current[1];
-    $id = $current[2];
+    $iSys = $current[0];
+    $ig = $current[1];
+    $is = $current[2];
+    $id = $current[3];
 
     if ($index%2 == 0) echo "<TR>\n";
 
-    $output = $ig.$is."2";
-    $state = daemon_send($target, $port, $output);
+    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP) or die("Could not create socket\n");
+    socket_bind($socket, $source) or die("Could not bind to socket\n");
+    socket_connect($socket, $target, $port) or die("Could not connect to socket\n");
+
+    $output = $iSys.$ig.$is."2";
+    socket_write($socket, $output, strlen ($output)) or die("Could not write output\n");
+    $state = socket_read($socket, 2048);
     if ($state == 0) {
       $color=" BGCOLOR=\"#C00000\"";
       $ia = 1;
@@ -120,16 +116,18 @@ foreach($config as $current) {
     echo "<TD class=outer ".$color.">\n";
     echo "<TABLE><TR><TD class=inner BGCOLOR=\"#000000\">";
     echo "<A CLASS=\"".$direction."\" HREF=\"?group=".$ig;
+    echo "&sys=".$iSys;
     echo "&switch=".$is;
     echo "&action=".$ia;
     echo "&delay=".$nDelay."\">";
     echo "<H3>".$id."</H3><BR />";
-    echo $ig.":".$is."<BR />";
+    echo $iSys.":".$ig.":".$is."<BR />";
     echo "switch ".$direction;
     echo "</A>";
     echo "</TD>";
     echo "</TR></TABLE>\n";
     echo "</TD>\n";
+    socket_close($socket);
   }
   else {
     echo "<TD></TD>\n";

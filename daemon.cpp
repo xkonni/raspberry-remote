@@ -7,7 +7,8 @@
  *   DATA  to pin11/gpio0
  *
  * Usage
- *   send xxxxxyyz to ip:port
+ *   send axxxxxyyz to ip:port
+ *   a		systemcode. 1 for classic elro, 2 for Intertechno 
  *   xxxxx  encoding
  *          00001 for first channel
  *   yy     plug
@@ -17,13 +18,17 @@
  *
  *  Examples of remote actions
  *    Switch plug 01 on 00001 to on
- *      echo 01111011 | nc localhost 11337
+ *      echo 101111011 | nc localhost 11337
  *
  *    Switch plug 01 on 00001 to off
- *      echo 01111010 | nc localhost 11337
+ *      echo 101111010 | nc localhost 11337
  *
  *    Get status of plug 01 on 00001
- *      echo 01111012 | nc localhost 11337
+ *      echo 101111012 | nc localhost 11337
+ *
+ *	  Switch intertechno plug 2 on group 2 to on
+ *		echo 2221 | nc localhost 11337
+ *
  */
 
 #include <stdio.h>
@@ -40,141 +45,257 @@
 RCSwitch mySwitch;
 
 int main(int argc, char* argv[]) {
-  /**
-   * Setup wiringPi and RCSwitch
-   * set high priority scheduling
-   */
-  if (wiringPiSetup () == -1)
-    return 1;
-  piHiPri(20);
-  mySwitch = RCSwitch();
-  mySwitch.setPulseLength(300);
-  usleep(50000);
-  mySwitch.enableTransmit(0);
-
-  nPlugs=153;
-  int nState[nPlugs];
-  nTimeout=0;
-  memset(nState, 0, sizeof(nState));
-
-  /**
-   * setup socket
-   */
-  int sockfd, newsockfd, portno;
-  socklen_t clilen;
-  char buffer[256];
-  struct sockaddr_in serv_addr, cli_addr;
-  int n;
-
-  bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = PORT;
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
-  // receiving socket
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0)
-    error("ERROR opening socket");
-  if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-    error("ERROR on binding");
-
-  // sending socket
-  newsockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (newsockfd < 0)
-    error("ERROR opening socket");
-
-  /*
-   * start listening
-   */
-  while (true) {
-    listen(sockfd,5);
-    clilen = sizeof(cli_addr);
-    newsockfd = accept(sockfd,
-                (struct sockaddr *) &cli_addr,
-                &clilen);
-    if (newsockfd < 0)
-      error("ERROR on accept");
-    bzero(buffer,256);
-    n = read(newsockfd,buffer,255);
-    if (n < 0)
-      error("ERROR reading from socket");
-
-    printf("message: %s\n", buffer);
-    if (strlen(buffer) >= 8) {
-      for (int i=0; i<5; i++) {
-        nGroup[i] = buffer[i];
-      }
-      nGroup[5] = '\0';
-
-      for (int i=5;i<7; i++) {
-        nSwitchNumber = buffer[i]-48;
-      }
-      nAction = buffer[7]-48;
-      nTimeout=0;
-
-printf("nGroup: %s\n", nGroup);
-printf("nSwitchNumber: %i\n", nSwitchNumber);
-printf("nAction: %i\n", nAction);
-
-      if (strlen(buffer) >= 9) nTimeout = buffer[8]-48;
-      if (strlen(buffer) >= 10) nTimeout = nTimeout*10+buffer[9]-48;
-      if (strlen(buffer) >= 11) nTimeout = nTimeout*10+buffer[10]-48;
-
-      /**
-       * handle messages
-       */
-      int nAddr = getAddr(nGroup, nSwitchNumber);
-printf("nAddr: %i\n", nAddr);
-printf("nPlugs: %i\n", nPlugs);
-      char msg[13];
-      if (nAddr > nPlugs) {
-        printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
-        n = write(newsockfd,"2",1);
-      }
-      else {
-        switch (nAction) {
-          /**
-           * off
-           */
-          case 0:
-            //piThreadCreate(switchOff);
-            mySwitch.switchOff(nGroup, nSwitchNumber);
-            nState[nAddr] = 0;
-            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-            sprintf(msg, "%d", nState[nAddr]);
-            n = write(newsockfd,msg,1);
-            break;
-          /**
-           * on
-           */
-          case 1:
-            //piThreadCreate(switchOn);
-            mySwitch.switchOn(nGroup, nSwitchNumber);
-            nState[nAddr] = 1;
-            //sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-            sprintf(msg, "%d", nState[nAddr]);
-            n = write(newsockfd,msg,1);
-            break;
-          /**
-           * status
-           */
-          case 2:
-            sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
-            sprintf(msg, "%d", nState[nAddr]);
-            n = write(newsockfd,msg,1);
-            break;
-        }
-      }
+	/**
+	* Setup wiringPi and RCSwitch
+	* set high priority scheduling
+	*/
+  	if (wiringPiSetup () == -1){
+    	return 1;
     }
-    else {
-      printf("message corrupted or incomplete");
-    }
+  	piHiPri(20);
+  	mySwitch = RCSwitch();
+	mySwitch.setPulseLength(300);
+	usleep(50000);
+	mySwitch.enableTransmit(0);
+	nPlugs=1110;
+  	int nState[nPlugs];
+  	nTimeout=0;
+  	memset(nState, 0, sizeof(nState));
 
+	  /**
+   	* setup socket
+   	*/
+	int sockfd, newsockfd, portno;
+	socklen_t clilen;
+	char buffer[256];
+	struct sockaddr_in serv_addr, cli_addr;
+	int n;
 
-    if (n < 0)
-      error("ERROR writing to socket");
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	portno = PORT;
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(portno);
+  	// receiving socket
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  	if (sockfd < 0){
+    	error("ERROR opening socket");
+	}
+	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+    	error("ERROR on binding");
+	}
+	// sending socket
+	newsockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (newsockfd < 0)
+    error("ERROR opening socket");
 
-    close(newsockfd);
+	/*
+	* start listening
+	*/
+	while (true) {
+    	listen(sockfd,5);
+    	clilen = sizeof(cli_addr);
+    	newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr,&clilen);
+    	if (newsockfd < 0){
+      		error("ERROR on accept");
+      	}
+    	bzero(buffer,256);
+		n = read(newsockfd,buffer,255);
+		if (n < 0){
+      		error("ERROR reading from socket");
+      	}
+		/*
+		* get values
+		*/
+    	printf("message: %s\n", buffer);
+    	if (strlen(buffer) >= 5) {
+      		nSys = buffer[0]-48;
+      		switch (nSys){
+      			//normal elro
+      			case 1:{
+      				for (int i=1; i<6; i++) {
+        				nGroup[i-1] = buffer[i];
+      				}
+      				nGroup[6] = '\0';
+					for (int i=6;i<8; i++) {
+						nSwitchNumber = buffer[i]-48;
+		  			}
+		  			nAction = buffer[8]-48;
+		  			nTimeout=0;
+					printf("nSys: %i\n", nSys);
+					printf("nGroup: %s\n", nGroup);
+					printf("nSwitchNumber: %i\n", nSwitchNumber);
+					printf("nAction: %i\n", nAction);
+
+					if (strlen(buffer) >= 10) nTimeout = buffer[9]-48;
+					if (strlen(buffer) >= 11) nTimeout = nTimeout*10+buffer[10]-48;
+					if (strlen(buffer) >= 12) nTimeout = nTimeout*10+buffer[11]-48;
+
+		  			/**
+		   			* handle messages
+		   			*/
+		  			int nAddr = getAddr(nGroup, nSwitchNumber);
+					printf("nAddr: %i\n", nAddr);
+					printf("nPlugs: %i\n", nPlugs);
+		 			char msg[13];
+		  			if (nAddr > nPlugs) {
+						printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
+						n = write(newsockfd,"2",1);
+		  			}
+		  			else {
+						switch (nAction) {
+			 		 		//OFF
+							case 0:{
+								//piThreadCreate(switchOff);
+								mySwitch.switchOffBinary(nGroup, nSwitchNumber);
+								nState[nAddr] = 0;
+								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								sprintf(msg, "%d", nState[nAddr]);
+								n = write(newsockfd,msg,1);
+								break;
+							}
+							//ON  				
+			  				case 1:{
+								//piThreadCreate(switchOn);
+								mySwitch.switchOnBinary(nGroup, nSwitchNumber);
+								nState[nAddr] = 1;
+								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								sprintf(msg, "%d", nState[nAddr]);
+								n = write(newsockfd,msg,1);
+								break;
+							}
+							//STATUS
+			  				case 2:{
+								sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								sprintf(msg, "%d", nState[nAddr]);
+								n = write(newsockfd,msg,1);
+								break;
+							}
+					}
+					}
+					break;
+				}
+
+      			//Intertechno
+      			case 2:{
+      				nGroup[0] = buffer[1];
+        			
+      				nGroup[1] = '\0';
+      				for (int i=2;i<4; i++) {
+        				nSwitchNumber = buffer[i]-48;
+      				}
+      				nAction = buffer[4]-48;
+		      		nTimeout=0;
+      				printf("nSys: %i\n", nSys);
+					printf("nGroup: %s\n", nGroup);
+					printf("nSwitchNumber: %i\n", nSwitchNumber);
+					printf("nAction: %i\n", nAction);
+					int nAddr = getAddr(nGroup, nSwitchNumber);
+					printf("nAddr: %i\n", nAddr);
+					printf("nPlugs: %i\n", nPlugs);
+  				    char msg[13];
+					if (nAddr > nPlugs) {
+       			 		printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
+        				n = write(newsockfd,"2",1);
+      				}
+      				else {
+						printf("computing systemcode for Intertechno Type B house[%s] unit[%i] ... ",nGroup, nSwitchNumber);
+						char pSystemCode[14];
+						switch(atoi(nGroup)){
+				// house/family code A=1 - P=16
+							case 1:     { printf("1/A ... ");	    strcpy(pSystemCode,"0000");	break; }
+							case 2:     { printf("2/B ... ");	    strcpy(pSystemCode,"F000");	break; }
+							case 3:	    { printf("3/C ... ");	    strcpy(pSystemCode,"0F00");	break; }
+							case 4:     { printf("4/D ... ");	    strcpy(pSystemCode,"FF00");	break; }
+							case 5:	    { printf("5/E ... ");	    strcpy(pSystemCode,"00F0");	break; }
+							case 6:     { printf("6/F ... ");	    strcpy(pSystemCode,"F0F0");	break; }
+							case 7:	    { printf("7/G ... ");	    strcpy(pSystemCode,"0FF0");	break; }
+							case 8:     { printf("8/H ... ");	    strcpy(pSystemCode,"FFF0");	break; }
+							case 9:	    { printf("9/I ... ");	    strcpy(pSystemCode,"000F");	break; }
+							case 10:    { printf("10/J ... ");	    strcpy(pSystemCode,"F00F");	break; }
+							case 11:	{ printf("11/K ... ");	    strcpy(pSystemCode,"0F0F");	break; }
+							case 12:    { printf("12/L ... ");	    strcpy(pSystemCode,"FF0F");	break; }
+							case 13:	{ printf("13/M ... ");	    strcpy(pSystemCode,"00FF");	break; }
+							case 14:    { printf("14/N ... ");	    strcpy(pSystemCode,"F0FF");	break; }
+							case 15:	{ printf("15/O ... ");	    strcpy(pSystemCode,"0FFF");	break; }
+							case 16:    { printf("16/P ... ");	    strcpy(pSystemCode,"FFFF");	break; }
+							default:{
+								printf("systemCode[%s] is unsupported\n", nGroup);
+								return -1;
+							}
+						}
+						printf("got systemCode[%s] ",nGroup);
+						switch(nSwitchNumber){
+						// unit/group code 01-16
+							case 1:     { printf("1 ... ");	    strcat(pSystemCode,"0000");	break; }
+							case 2:     { printf("2 ... ");	    strcat(pSystemCode,"F000");	break; }
+							case 3:	    { printf("3 ... ");	    strcat(pSystemCode,"0F00");	break; }
+							case 4:     { printf("4 ... ");	    strcat(pSystemCode,"FF00");	break; }
+							case 5:	    { printf("5 ... ");	    strcat(pSystemCode,"00F0");	break; }
+							case 6:     { printf("6 ... ");	    strcat(pSystemCode,"F0F0");	break; }
+							case 7:	    { printf("7 ... ");	    strcat(pSystemCode,"0FF0");	break; }
+							case 8:     { printf("8 ... ");	    strcat(pSystemCode,"FFF0");	break; }
+							case 9:	    { printf("9 ... ");	    strcat(pSystemCode,"000F");	break; }
+							case 10:    { printf("10 ... ");	    strcat(pSystemCode,"F00F");	break; }
+							case 11:	{ printf("11 ... ");	    strcat(pSystemCode,"0F0F");	break; }
+							case 12:    { printf("12 ... ");	    strcat(pSystemCode,"FF0F");	break; }
+							case 13:	{ printf("13 ... ");	    strcat(pSystemCode,"00FF");	break; }
+							case 14:    { printf("14 ... ");	    strcat(pSystemCode,"F0FF");	break; }
+							case 15:	{ printf("15 ... ");	    strcat(pSystemCode,"0FFF");	break; }
+							case 16:    { printf("16 ... ");	    strcat(pSystemCode,"FFFF");	break; }
+							default:{
+								printf("unitCode[%i] is unsupported\n", nSwitchNumber);
+        	   	 				return -1;
+							}
+		 				}
+						strcat(pSystemCode,"0F"); // mandatory bits
+        				switch(nAction){
+							case 0:{
+								strcat(pSystemCode,"F0");
+  				               	mySwitch.sendTriState(pSystemCode);
+  				               	printf("sent TriState signal: pSystemCode[%s]\n",pSystemCode);
+                 				nState[nAddr] = 0;
+           		 				//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+           		 				sprintf(msg, "%d", nState[nAddr]);
+           		 				n = write(newsockfd,msg,1);
+                 				break;
+							}
+							case 1:{
+                 				strcat(pSystemCode,"FF");
+                 				mySwitch.sendTriState(pSystemCode);
+                 				printf("sent TriState signal: pSystemCode[%s]\n",pSystemCode);
+                 				nState[nAddr] = 1;
+            					//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            					sprintf(msg, "%d", nState[nAddr]);
+            					n = write(newsockfd,msg,1);
+                 				break;
+                 			}
+            				case 2:{
+            					sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+            					sprintf(msg, "%d", nState[nAddr]);
+            					n = write(newsockfd,msg,1);
+            					break;
+            				}
+            				default:{
+                 				printf("command[%i] is unsupported\n", nAction);
+                 				return -1;
+                 			}
+            }
+					}
+      			break;
+      			}
+    			default:{
+    				printf("wrong systemkey!\n");
+    			}
+    		}
+		}
+    	else {
+      		printf("message corrupted or incomplete");
+		}
+		if (n < 0){
+			error("ERROR writing to socket");
+			close(newsockfd);
+    	}
   }
 
   /**
@@ -221,7 +342,7 @@ PI_THREAD(switchOn) {
   memcpy(tGroup, nGroup, sizeof(tGroup));
   tSwitchNumber = nSwitchNumber;
   sleep(nTimeout*60);
-  mySwitch.switchOn(tGroup, tSwitchNumber);
+  mySwitch.switchOnBinary(tGroup, tSwitchNumber);
   return 0;
 }
 
@@ -232,7 +353,7 @@ PI_THREAD(switchOff) {
   memcpy(tGroup, nGroup, sizeof(tGroup));
   tSwitchNumber = nSwitchNumber;
   sleep(nTimeout*60);
-  mySwitch.switchOff(tGroup, tSwitchNumber);
+  mySwitch.switchOffBinary(tGroup, tSwitchNumber);
   return 0;
 }
 

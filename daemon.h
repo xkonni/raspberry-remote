@@ -1,6 +1,7 @@
 #include <wiringPi.h>
 
 char nGroup[6];
+int nSys;
 int nSwitchNumber;
 int nAction;
 int nPlugs;
