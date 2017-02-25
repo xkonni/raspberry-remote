@@ -9,7 +9,8 @@ int nTimeout;
 int PORT = 11337;
 
 void error(const char *msg);
-int getAddr(const char* nGroup, int nSwitchNumber);
+int getAddrElro(const char* nGroup, int nSwitchNumber);
+int getAddrInt(const char* nGroup, int nSwitchNumber);
 
 PI_THREAD(switchOn);
 PI_THREAD(switchOff);
