@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 	mySwitch = RCSwitch();
 	mySwitch.setPulseLength(300);
 	usleep(50000);
-	mySwitch.enableTransmit(0);
+	mySwitch.enableTransmit(GPIO_PIN);
 	nPlugs=1280;
 	int nState[nPlugs];
 	nTimeout=0;
