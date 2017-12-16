@@ -7,6 +7,7 @@ int nAction;
 int nPlugs;
 int nTimeout;
 int PORT = 11337;
+int GPIO_PIN = 0;
 
 void error(const char *msg);
 int getAddrElro(const char* nGroup, int nSwitchNumber);
