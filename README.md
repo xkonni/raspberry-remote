@@ -29,8 +29,8 @@ https://github.com/Panzenbaby/Raspberry-Remote-for-Windows-10-IoT-Core
 
 ## Usage
 Try if all is working with the send program
-*  Switch on single socket: `./send 00001 1 1`
-*  Switch on multiple sockets: `./send 00001 1 00001 2 00001 3 1`
+*  Switch on single socket: `./send 1 00001 1 1`
+*  Switch on multiple sockets: `./send 1 00001 1 1 00001 2 1 00001 3 1`
 
 ### Options
 * `-b`, `--binary`: Use binary socket numbering instead of the common "only one switch up"-numbering. See [Binary Mode](#binary-mode) for further details.
