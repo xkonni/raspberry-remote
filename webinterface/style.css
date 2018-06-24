@@ -64,6 +64,13 @@ p {
   text-align: center;
 }
 
+#shutdown {
+margin-top: 50px;
+bottom: 0;
+right: 10;
+position: absolute;
+}
+
 /* Android HDPI */
 @media only screen and (-webkit-device-pixel-ratio:1.5) {
   td.outer {
