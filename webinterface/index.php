@@ -12,6 +12,7 @@
  * don't forget to edit config.php
  */
 include("config.php");
+include("shutdown.php");
 
 /*
  * get parameters
@@ -137,5 +138,6 @@ foreach($config as $current) {
 }
 echo "</TR></TABLE>";
 ?>
+<a id="shutdown" href='shutdown.php?shutdown=true'>Shutdown System</a>
 </body>
 </html>
