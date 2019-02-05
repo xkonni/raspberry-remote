@@ -2,7 +2,7 @@ DESCRIPTION = "RCSwitch on Raspberry Pi"
 LICENSE = "GPL"
 VERSION = 1.0
 
-CXXFLAGS += -Wall
+CXXFLAGS += -Wall -fpermissive
 CXXFLAGS += -lwiringPi
 
 default: daemon
