@@ -42,13 +42,30 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 #include "daemon.h"
 #include "RCSwitch.h"
 
 RCSwitch mySwitch;
+int sockfd, newsockfd, portno, running;
+
+void signal_handler(int f) {
+	printf("caught sigint, closing sockets");
+	running = false;
+	if (newsockfd > 0) {
+		// close(newsockfd);
+	}
+	if (sockfd > 0) {
+		shutdown(sockfd, SHUT_RD);
+		// close(sockfd);
+	}
+	exit(0);
+}
 
 int main(int argc, char* argv[]) {
+	signal(SIGINT, signal_handler);
+	running = true;
 	/**
 	* Setup wiringPi and RCSwitch
 	* set high priority scheduling
@@ -69,7 +86,6 @@ int main(int argc, char* argv[]) {
 	/**
 	* setup socket
 	*/
-	int sockfd, newsockfd, portno;
 	socklen_t clilen;
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
@@ -83,31 +99,38 @@ int main(int argc, char* argv[]) {
 	// receiving socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0) {
-		error("ERROR opening socket");
+		error("ERROR opening receiving socket");
 	}
+	// reuseaddr
+	int one = 1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0)
+		error("setsockopt(SO_REUSEADDR) failed");
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-		error("ERROR on binding");
+		error("ERROR on binding receiving socket");
 	}
 	// sending socket
 	newsockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (newsockfd < 0) {
-		error("ERROR opening socket");
+		error("ERROR opening sending socket");
 	}
 
 	/*
 	* start listening
 	*/
-	while (true) {
-		listen(sockfd,5);
+	while (running) {
+		listen(sockfd, 1);
 		clilen = sizeof(cli_addr);
 		newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr,&clilen);
 		if (newsockfd < 0) {
 			error("ERROR on accept");
+			continue;
 		}
 		bzero(buffer,256);
 		n = read(newsockfd,buffer,255);
 		if (n < 0) {
 			error("ERROR reading from socket");
+			close(newsockfd);
+			continue;
 		}
 		/*
 		* get values
@@ -117,7 +140,7 @@ int main(int argc, char* argv[]) {
 			nSys = buffer[0]-48;
 			switch (nSys) {
 				//normal elro
-				case 1:{
+				case 1: {
 					for (int i=1; i<6; i++) {
 						nGroup[i-1] = buffer[i];
 					}
@@ -143,6 +166,7 @@ int main(int argc, char* argv[]) {
 					printf("nPlugs: %i\n", nPlugs);
 					char msg[13];
 					if (nAddr > 1023 || nAddr < 0) {
+						printf("if\n");
 						printf("Switch out of range: %s:%d\n", nGroup, nSwitchNumber);
 						n = write(newsockfd,"2",1);
 					}
@@ -153,9 +177,10 @@ int main(int argc, char* argv[]) {
 								//piThreadCreate(switchOff);
 								mySwitch.switchOffBinary(nGroup, nSwitchNumber);
 								nState[nAddr] = 0;
-								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d\n", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
-								n = write(newsockfd,msg,1);
+								n = write(newsockfd, msg, strlen(msg));
 								break;
 							}
 							//ON
@@ -163,16 +188,18 @@ int main(int argc, char* argv[]) {
 								//piThreadCreate(switchOn);
 								mySwitch.switchOnBinary(nGroup, nSwitchNumber);
 								nState[nAddr] = 1;
-								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d\n", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
-								n = write(newsockfd,msg,1);
+								n = write(newsockfd, msg, strlen(msg));
 								break;
 							}
 							//STATUS
 							case 2:{
-								sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d\n", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
-								n = write(newsockfd,msg,1);
+								n = write(newsockfd, msg, strlen(msg));
 								break;
 							}
 						}
@@ -181,7 +208,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				//Intertechno
-				case 2:{
+				case 2: {
 					nGroup[0] = buffer[1];
 					nGroup[1] = buffer[2];
 					nGroup[2] = '\0';
@@ -258,7 +285,8 @@ int main(int argc, char* argv[]) {
 								mySwitch.sendTriState(pSystemCode);
 								printf("sent TriState signal: pSystemCode[%s]\n",pSystemCode);
 								nState[nAddr] = 0;
-								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
 								n = write(newsockfd,msg,1);
 								break;
@@ -268,13 +296,15 @@ int main(int argc, char* argv[]) {
 								mySwitch.sendTriState(pSystemCode);
 								printf("sent TriState signal: pSystemCode[%s]\n",pSystemCode);
 								nState[nAddr] = 1;
-								//sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
 								n = write(newsockfd,msg,1);
 								break;
 							}
 							case 2:{
-								sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// sprintf(msg, "nState[%d] = %d", nAddr, nState[nAddr]);
+								// for webinterface
 								sprintf(msg, "%d", nState[nAddr]);
 								n = write(newsockfd,msg,1);
 								break;
@@ -287,8 +317,9 @@ int main(int argc, char* argv[]) {
 					}
 					break;
 				}
-				default:{
+				default: {
 					printf("wrong systemkey!\n");
+					break;
 				}
 			}
 		}
@@ -297,14 +328,15 @@ int main(int argc, char* argv[]) {
 		}
 		if (n < 0) {
 			error("ERROR writing to socket");
-			close(newsockfd);
 		}
+		close(newsockfd);
 	}
 
 	/**
 	 * terminate
 	 */
 	//close(newsockfd);
+	printf("terminate");
 	close(sockfd);
 	return 0;
 }
