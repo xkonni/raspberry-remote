@@ -215,7 +215,8 @@ char* RCSwitch::getCodeWordB(int nAddressCode, int nChannelCode, boolean bStatus
 
    const char* code[5] = { "FFFF", "0FFF", "F0FF", "FF0F", "FFF0" };
    if (nAddressCode < 1 || nAddressCode > 4 || nChannelCode < 1 || nChannelCode > 4) {
-    return '\0';
+    sReturn[0] = '\0';
+    return sReturn;
    }
    for (int i = 0; i<4; i++) {
      sReturn[nReturnPos++] = code[nAddressCode][i];
@@ -258,7 +259,8 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
   const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" };
 
   if (nChannelCode < 1 || nChannelCode > 5) {
-      return '\0';
+    sReturn[0] = '\0';
+    return sReturn;
   }
 
   for (int i = 0; i<5; i++) {
@@ -267,7 +269,8 @@ char* RCSwitch::getCodeWordA(char* sGroup, int nChannelCode, boolean bStatus) {
     } else if (sGroup[i] == '1') {
       sReturn[nReturnPos++] = '0';
     } else {
-      return '\0';
+      sReturn[0] = '\0';
+      return sReturn;
     }
   }
 
@@ -332,7 +335,8 @@ char* RCSwitch::getCodeWordD(char* sGroup, int nChannelCode, boolean bStatus) {
   //const char* code[6] = { "FFFFF", "0FFFF", "F0FFF", "FF0FF", "FFF0F", "FFFF0" }; //former conversion of socket number to binary
 
   if (nChannelCode < 1 || nChannelCode > 31) {
-      return '\0';
+    sReturn[0] = '\0';
+    return sReturn;
   }
 
   for (int i = 0; i<5; i++) {
@@ -341,7 +345,8 @@ char* RCSwitch::getCodeWordD(char* sGroup, int nChannelCode, boolean bStatus) {
     } else if (sGroup[i] == '1') {
       sReturn[nReturnPos++] = '0';
     } else {
-      return '\0';
+      sReturn[0] = '\0';
+      return sReturn;
     }
   }
 
@@ -385,7 +390,8 @@ char* RCSwitch::getCodeWordC(char sFamily, int nGroup, int nDevice, boolean bSta
   int nReturnPos = 0;
 
   if ( (byte)sFamily < 97 || (byte)sFamily > 112 || nGroup < 1 || nGroup > 4 || nDevice < 1 || nDevice > 4) {
-    return '\0';
+    sReturn[0] = '\0';
+    return sReturn;
   }
 
   char* sDeviceGroupCode =  dec2binWzerofill(  (nDevice-1) + (nGroup-1)*4, 4  );
