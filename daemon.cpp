@@ -299,6 +299,8 @@ int main(int argc, char* argv[]) {
 			error("ERROR writing to socket");
 			close(newsockfd);
 		}
+		shutdown(sockfd, SHUT_WR);
+		shutdown(newsockfd, SHUT_WR);
 	}
 
 	/**
